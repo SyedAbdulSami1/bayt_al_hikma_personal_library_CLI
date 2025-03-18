@@ -33,3 +33,65 @@ def add_book():
     conn.commit()
     conn.close()
     print("Book added successfully!\n")
+
+# Create a function to remove a book from the database
+def remove_book():
+    title = input("Enter the title of the book you want to remove: ")
+    conn = sqlite3.connect("library.db")
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM books WHERE title = ?", (title))
+
+    conn.commit()
+    conn.close()
+    print("Book removed successfully!\n")
+
+# Create a function to search books
+def search_books():
+    choices = input("Search by (1) Title, (2) Author: ")
+    search_terms=input("Enter search terms:")
+    conn = sqlite3.connect("library.db")
+    cursor = conn.cursor()
+    if choices == "1":
+        cursor.execute("SELECT * FROM books WHERE title LIKE ?", ('%' + search_terms + '%',))
+    else:
+        cursor.execute("SELECT * FROM books WHERE author LIKE ?", ('%' + search_terms + '%',))
+    books = cursor.fetchall()
+    conn.close()
+    if books:
+        for book in books:
+            print(f"{book[1]} by {book[2]} ({book[3]}) - {book[4]} - {"Read" if book[5] else "Unread"}")
+    else:
+        print("No matching books found.\n")
+
+# Create a function to display books
+def display_books():
+    conn = sqlite3.connect("library.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM books")
+    books = cursor.fetchall()
+    conn.close()
+    if books:
+        for book in books:
+            print(f"{book[1]} by {book[2]} ({book[3]}) - {book[4]} - {"Read" if book[5] else "Unread"}")
+    else:
+        print("No books in library.\n")
+
+# Create a function to display statistics for each book in the library
+def display_statistics():
+    conn = sqlite3.connect("library.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM books")
+    total_books = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT (*) FROM books WHERE read_status = 1")
+    read_books = cursor.fetchone()[0]
+    conn.close()
+    percentag_read = (read_books / total_books * 100) if total_books > 0 else 0
+    print(f"Total Books: {total_books}")
+    print(f" Percentage read: {percentag_read}")
+
+def main():
+    create_database()
+    while True:
+        print("\n Personal Library Manager")
+        print("1.Add a book")
