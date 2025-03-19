@@ -94,4 +94,27 @@ def main():
     create_database()
     while True:
         print("\n Personal Library Manager")
-        print("1.Add a book")
+        print("1. Add a book")
+        print("2. Remove a book")
+        print("3. Search a book")
+        print("4. Display all book")
+        print("5. Display Statistics")
+        print("6. Exit")
+        choice = input("Enter choice: ")
+        if choice == "1":
+            add_book()
+        elif choice == "2":
+            remove_book()
+        elif choice == "3":
+            search_books()
+        elif choice == "4":
+            display_books()
+        elif choice == "5":
+            display_statistics()
+        elif choice == "6":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again!\n")
+if __name__ == "__main__":
+    main()
