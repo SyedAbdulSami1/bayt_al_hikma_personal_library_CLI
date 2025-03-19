@@ -2,20 +2,23 @@ import sqlite3      # Import sqlite3 module
 
 # Create a function to create a database
 def create_database():
-    conn= sqlite3.connect("library.db") # creating "library.db" database 
-    cursor = conn.cursor()      # connecting to the database connection #Creating a table in database
-    cursor.execute("""
-                   CREATE TABLE IF NOT EXISTS books (
-                   id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT,
-                    author TEXT,
-                    year INTEGER,
-                    genre TEXT,
-                    read BOOLEAN
-     )               
-    """)
-    #save changes to
-    conn.commit() # commit yo Dsb4 changes 
+    conn = sqlite3.connect("library.db") # creating "library.db" database  
+    cursor = conn.cursor()      # connecting to the database connection
+    
+    # Drop the existing table if it exists
+    cursor.execute("DROP TABLE IF EXISTS books")
+    
+    # Creating a table in database
+    cursor.execute("""CREATE TABLE IF NOT EXISTS books (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title TEXT,
+                        author TEXT,
+                        year INTEGER,
+                        genre TEXT,
+                        read_status BOOLEAN)
+                        """)
+    # Save changes to
+    conn.commit() # commit the changes
     conn.close() # close the connection
 
 # Create a function to add a book to the database
@@ -23,13 +26,12 @@ def add_book():
     title = input("Enter Book Title: " )
     author = input ("Enter Book Author: ")
     year = int(input("Enter Book year: "))
-    genre = input ("Enter Genere: ")
+    genre = input ("Enter Genre: ")
     read_status = input("Have you read this book? (yes/no): ").strip().lower() == "yes"
 
     conn = sqlite3.connect("library.db")
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO books (title, author, year, genre, read_status) VALUES (?, ?, ?, ?, ?)", 
-                   (title, author, year, genre, read_status))
+    cursor.execute("INSERT INTO books (title, author, year, genre, read_status) VALUES (?, ?, ?, ?, ?)", (title, author, year, genre, read_status))
     conn.commit()
     conn.close()
     print("Book added successfully!\n")
@@ -40,8 +42,7 @@ def remove_book():
     conn = sqlite3.connect("library.db")
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM books WHERE title = ?", (title))
-
+    cursor.execute("DELETE FROM books WHERE title = ?", (title,))
     conn.commit()
     conn.close()
     print("Book removed successfully!\n")
@@ -49,7 +50,7 @@ def remove_book():
 # Create a function to search books
 def search_books():
     choices = input("Search by (1) Title, (2) Author: ")
-    search_terms=input("Enter search terms:")
+    search_terms = input("Enter search terms: ")
     conn = sqlite3.connect("library.db")
     cursor = conn.cursor()
     if choices == "1":
@@ -60,7 +61,7 @@ def search_books():
     conn.close()
     if books:
         for book in books:
-            print(f"{book[1]} by {book[2]} ({book[3]}) - {book[4]} - {"Read" if book[5] else "Unread"}")
+            print(f"{book[1]} by {book[2]} ({book[3]}) - {book[4]} - {'Read' if book[5] else 'Unread'}")
     else:
         print("No matching books found.\n")
 
@@ -73,7 +74,7 @@ def display_books():
     conn.close()
     if books:
         for book in books:
-            print(f"{book[1]} by {book[2]} ({book[3]}) - {book[4]} - {"Read" if book[5] else "Unread"}")
+            print(f"{book[1]} by {book[2]} ({book[3]}) - {book[4]} - {'Read' if book[5] else 'Unread'}")
     else:
         print("No books in library.\n")
 
@@ -83,21 +84,21 @@ def display_statistics():
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM books")
     total_books = cursor.fetchone()[0]
-    cursor.execute("SELECT COUNT (*) FROM books WHERE read_status = 1")
+    cursor.execute("SELECT COUNT(*) FROM books WHERE read_status = 1")
     read_books = cursor.fetchone()[0]
     conn.close()
-    percentag_read = (read_books / total_books * 100) if total_books > 0 else 0
+    percentage_read = (read_books / total_books * 100) if total_books > 0 else 0
     print(f"Total Books: {total_books}")
-    print(f" Percentage read: {percentag_read}")
+    print(f"Percentage read: {percentage_read}")
 
 def main():
     create_database()
     while True:
-        print("\n Personal Library Manager")
+        print("\nPersonal Library Manager")
         print("1. Add a book")
         print("2. Remove a book")
         print("3. Search a book")
-        print("4. Display all book")
+        print("4. Display all books")
         print("5. Display Statistics")
         print("6. Exit")
         choice = input("Enter choice: ")
@@ -116,5 +117,6 @@ def main():
             break
         else:
             print("Invalid choice. Please try again!\n")
+
 if __name__ == "__main__":
     main()
